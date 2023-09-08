@@ -1,8 +1,5 @@
 import { App } from 'aws-cdk-lib';
-import {
-  WordlyDynamoStack,
-  WordlyDynamoFillerStack,
-} from './stacks/wordly-dynamo-stack';
+import { WordlyDynamoStack, WordlyDynamoFillerStack } from './stacks/wordly-dynamo-stack';
 import { WordlyLambdasStack } from './stacks/wordly-lambdas-stack';
 import { WordlyCodepipelineStack } from './stacks/wordly-codepipeline-stack';
 

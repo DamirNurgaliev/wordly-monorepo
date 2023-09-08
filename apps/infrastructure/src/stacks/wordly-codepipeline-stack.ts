@@ -1,12 +1,12 @@
 import { Construct } from 'constructs';
 import * as CodePipeline from 'aws-cdk-lib/aws-codepipeline';
 import * as CodePipelineAction from 'aws-cdk-lib/aws-codepipeline-actions';
-import { RemovalPolicy } from 'aws-cdk-lib';
+import { RemovalPolicy, Stack } from 'aws-cdk-lib';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as CodeBuild from 'aws-cdk-lib/aws-codebuild';
 import { SecretValue } from 'aws-cdk-lib/core';
 
-export class WordlyCodepipelineStack extends Construct {
+export class WordlyCodepipelineStack extends Stack {
   constructor(scope: Construct, id: string) {
     super(scope, id);
 

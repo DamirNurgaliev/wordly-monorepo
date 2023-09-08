@@ -1,6 +1,6 @@
 import { Construct } from 'constructs';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
-import { Duration, RemovalPolicy, StackProps } from 'aws-cdk-lib';
+import { Duration, RemovalPolicy, StackProps, Stack } from 'aws-cdk-lib';
 import { Asset } from 'aws-cdk-lib/aws-s3-assets';
 import * as lambda from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
@@ -12,7 +12,7 @@ interface DynamoFillerStackProps extends StackProps {
   dynamoDb: dynamodb.Table;
 }
 
-export class WordlyDynamoStack extends Construct {
+export class WordlyDynamoStack extends Stack {
   public readonly dynamoDb: dynamodb.Table;
 
   constructor(scope: Construct, id: string) {
@@ -27,9 +27,10 @@ export class WordlyDynamoStack extends Construct {
   }
 }
 
-export class WordlyDynamoFillerStack extends Construct {
+export class WordlyDynamoFillerStack extends Stack {
   constructor(scope: Construct, id: string, props: DynamoFillerStackProps) {
     super(scope, id);
+
     const fileAsset = new Asset(this, 'ruFiveWordsAsset', {
       path: path.join(__dirname, '../../wordly-words', 'ru5.txt'),
     });

@@ -9,7 +9,7 @@ phases:
       - npm install
   build:
     commands:
-      - nx build wordly-spa
+      - ./node_modules/.bin/nx build wordly-spa
 
 artifacts:
   files:
