@@ -6,7 +6,7 @@ phases:
       nodejs: 18
   pre_build:
     commands:
-      - npm install
+      - pnpm install
   build:
     commands:
       - ./node_modules/.bin/nx build wordly-spa
