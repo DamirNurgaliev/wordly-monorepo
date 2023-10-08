@@ -10,12 +10,9 @@ applications:
             - pnpm install
         build:
           commands:
-            - pnpm nx build wordly-spa
+            - pnpm nx build wordly-spa --prod
       artifacts:
         files:
           - '**/*'
         discard-paths: yes
         baseDirectory: 'dist/apps/wordly-spa/'
-      cache:
-        paths:
-          - node_modules
