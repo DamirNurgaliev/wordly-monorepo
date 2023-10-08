@@ -1,0 +1,23 @@
+version: 1
+applications:
+  - appRoot: apps/wordly-spa
+    env:
+      variables:
+        AMPLIFY_MONOREPO_APP_ROOT: apps/wordly-spa
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - npm install -g pnpm
+            - pnpm install
+        build:
+          commands:
+            - pnpm nx build wordly-spa
+      artifacts:
+        files:
+          - '**/*'
+        discard-paths: yes
+        baseDirectory: 'dist/apps/wordly-spa/'
+      cache:
+        paths:
+          - node_modules
