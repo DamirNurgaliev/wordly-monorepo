@@ -8,6 +8,7 @@ applications:
       phases:
         preBuild:
           commands:
+            - nvm use $VERSION_NODE_20
             - npm install -g pnpm
             - pnpm install
         build:
