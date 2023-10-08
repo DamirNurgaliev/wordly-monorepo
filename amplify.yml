@@ -1,9 +1,6 @@
 version: 1
 applications:
   - appRoot: apps/wordly-spa
-    env:
-      variables:
-        AMPLIFY_MONOREPO_APP_ROOT: apps/wordly-spa
     frontend:
       phases:
         preBuild:
