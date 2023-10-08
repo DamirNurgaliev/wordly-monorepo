@@ -11,6 +11,8 @@ applications:
         build:
           commands:
             - pnpm nx build wordly-spa --prod
+            - ls .
+            - ls dist
       artifacts:
         files:
           - '**/*'
