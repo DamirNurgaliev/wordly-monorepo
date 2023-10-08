@@ -15,7 +15,7 @@ export class WordlyAmplifyStack extends Stack {
         oauthToken: SecretValue.secretsManager('GitHubToken'),
       }),
       buildSpec: CodeBuild.BuildSpec.fromSourceFilename(
-        './apps/wordly-spa/buildspec.yml'
+        './apps/wordly-spa/amplify.yml'
       ),
     });
 

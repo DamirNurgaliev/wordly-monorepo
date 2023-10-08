@@ -52,7 +52,7 @@ export class WordlyCodepipelineStack extends Stack {
           project: new CodeBuild.PipelineProject(this, 'build', {
             projectName: 'Wordly',
             buildSpec: CodeBuild.BuildSpec.fromSourceFilename(
-              './apps/wordly-spa/buildspec.yml'
+              './apps/wordly-spa/amplify.yml'
             ),
             environment: {
               buildImage: CodeBuild.LinuxBuildImage.STANDARD_7_0,
