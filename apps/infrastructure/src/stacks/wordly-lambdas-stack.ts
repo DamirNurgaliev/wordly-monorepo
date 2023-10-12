@@ -11,6 +11,8 @@ interface LambdaStackProps extends StackProps {
 }
 
 export class WordlyLambdasStack extends Stack {
+  public readonly lambdaUrl: string;
+
   constructor(scope: Construct, id: string, props: LambdaStackProps) {
     super(scope, id);
 
@@ -25,9 +27,9 @@ export class WordlyLambdasStack extends Stack {
       },
     });
 
-    new apigwv.LambdaRestApi(this, 'verifyAnswerApi', {
+    this.lambdaUrl = new apigwv.LambdaRestApi(this, 'verifyAnswerApi', {
       handler: verifyAnswer,
-    });
+    }).url;
 
     props.dynamoDb.grantFullAccess(verifyAnswer);
   }
