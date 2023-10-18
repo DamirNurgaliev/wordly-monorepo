@@ -141,7 +141,7 @@ const parseByLetters = (word: string) => {
 const GAME_DIFFICULTIES = {
   '0': { min: 6, max: 10 },
   '1': { min: 3, max: 5 },
-  '3': { min: 0, max: 2 },
+  '2': { min: 0, max: 2 },
 };
 
 const calculateComplexity = (difficulty: string) => {

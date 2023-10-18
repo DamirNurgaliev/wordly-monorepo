@@ -30,7 +30,7 @@ const DifficultySelect = () => {
     setSelectedValue(e.target.value);
     localStorage.setItem('difficulty', e.target.value);
   };
-
+  console.log(localStorage.getItem('difficulty'))
   return (
     <SelectWrapper>
       <Select
