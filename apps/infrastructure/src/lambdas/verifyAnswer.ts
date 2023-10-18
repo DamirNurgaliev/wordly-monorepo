@@ -9,11 +9,11 @@ const CORS_HEADERS = {
 };
 
 export const handler = async (
-  event: APIGatewayEvent
+  event: APIGatewayEvent,
 ): Promise<APIGatewayProxyResult> => {
   const dynamoDb = new DynamoDB.DocumentClient();
 
-  const answerExist = await dynamoDb
+  const wordExist = await dynamoDb
     .query({
       TableName: process.env.DYNAMODB_TABLE || '',
       KeyConditionExpression: 'entity = :entity',
@@ -27,7 +27,7 @@ export const handler = async (
 
   let messageBody = {};
 
-  if (answerExist.Count == 0) {
+  if (wordExist.Count == 0) {
     return {
       statusCode: 200,
       body: JSON.stringify({ error: 'Word is not exist' }),
@@ -35,16 +35,22 @@ export const handler = async (
     };
   }
 
+  const gameDifficulty = event.queryStringParameters?.difficulty;
+  const complexity = calculateComplexity(gameDifficulty || '0');
+
   if (event.queryStringParameters?.gameId == null) {
     const word = await dynamoDb
       .scan({
         TableName: process.env.DYNAMODB_TABLE || '',
-        Limit: 1,
         ExclusiveStartKey: { entity: 'RU5', uuid: uuidv4() },
+        FilterExpression: 'complexity = :complexity',
+        ExpressionAttributeValues: { ':complexity': String(complexity) },
       })
       .promise();
 
     const gameUuid = uuidv4();
+
+    const randomIndex = Math.floor(Math.random() * word.Items.length);
 
     await dynamoDb
       .put({
@@ -52,14 +58,14 @@ export const handler = async (
         Item: {
           entity: 'Game',
           uuid: gameUuid,
-          word: word.Items?.at(0)?.word,
+          word: word.Items?.at(randomIndex)?.word,
         },
       })
       .promise();
 
     const result = wordComparison(
       event.queryStringParameters?.word || '',
-      word.Items?.at(0)?.word
+      word.Items?.at(randomIndex)?.word,
     );
     messageBody = { ...result, gameId: gameUuid };
   } else {
@@ -77,7 +83,7 @@ export const handler = async (
 
     messageBody = wordComparison(
       event.queryStringParameters?.word || '',
-      startedGame.Items?.at(0)?.word
+      startedGame.Items?.at(0)?.word,
     );
   }
 
@@ -100,37 +106,48 @@ const wordComparison = (userAnswer: string, hiddenWord: string) => {
   const hiddenWordLetters = parseByLetters(hiddenWord);
 
   Object.keys(userAnswerLetters).forEach((char) => {
-    if (!hiddenWordLetters[`${char}`]) return;
+    if (!hiddenWordLetters[char]) return;
 
-    const intersection = userAnswerLetters[`${char}`].filter((x: string) =>
-      hiddenWordLetters[`${char}`].includes(x)
+    const intersection = userAnswerLetters[char].filter((x: number) =>
+      hiddenWordLetters[char].includes(x),
     );
-    const difference = userAnswerLetters[`${char}`].filter(
-      (x: string) => !hiddenWordLetters[`${char}`].includes(x)
+    const difference = userAnswerLetters[char].filter(
+      (x: number) => !hiddenWordLetters[char].includes(x),
     );
-    const differenceContrary = hiddenWordLetters[`${char}`].filter(
-      (x: string) => !userAnswerLetters[`${char}`].includes(x)
+    const differenceContrary = hiddenWordLetters[char].filter(
+      (x: number) => !userAnswerLetters[char].includes(x),
     );
-
-    differenceContrary.forEach(
-      (_diff: any, index: number) =>
-        (guessedLetters = [...guessedLetters, difference.at(index)])
-    );
+    guessedLetters = [
+      ...guessedLetters,
+      ...difference.slice(0, differenceContrary.length),
+    ];
 
     guessedPositions = [...guessedPositions, ...intersection];
   });
 
-  return { guessedLetters: guessedLetters, guessedPositions: guessedPositions };
+  return { guessedLetters, guessedPositions };
 };
 
 const parseByLetters = (word: string) => {
-  let letters: any = {};
+  const result: { [key: string]: number[] } = {};
 
-  [...word].forEach((char, index) =>
-    !letters[`${char}`]
-      ? (letters[`${char}`] = [index])
-      : (letters[`${char}`] = [...letters[`${char}`], index])
+  [...word].forEach((letter, index) =>
+    letter in result ? result[letter].push(index) : (result[letter] = [index]),
   );
 
-  return letters;
+  return result;
+};
+
+const GAME_DIFFICULTIES = {
+  '0': { min: 6, max: 10 },
+  '1': { min: 3, max: 5 },
+  '3': { min: 0, max: 2 },
+};
+
+const calculateComplexity = (difficulty: string) => {
+  return Math.round(
+    Math.random() *
+      (GAME_DIFFICULTIES[difficulty].max - GAME_DIFFICULTIES[difficulty].min) +
+      GAME_DIFFICULTIES[difficulty].min,
+  );
 };

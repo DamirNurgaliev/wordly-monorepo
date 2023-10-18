@@ -32,7 +32,7 @@ export class WordlyDynamoFillerStack extends Stack {
     super(scope, id);
 
     const fileAsset = new Asset(this, 'ruFiveWordsAsset', {
-      path: path.join(__dirname, '../../wordly-words', 'ru5.txt'),
+      path: path.join(__dirname, '../../wordly-words', 'ru5WithComplexity.txt'),
     });
 
     const fillDbWithWords = new lambda.NodejsFunction(this, 'fillDbWithWords', {

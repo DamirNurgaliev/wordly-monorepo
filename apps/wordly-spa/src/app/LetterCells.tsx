@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import './App.css';
 import styled from 'styled-components';
 
@@ -9,18 +9,18 @@ interface Props {
 
 const LetterCell = styled.div<Props>`
   background-color: ${(props) => {
-  let finalColor: string;
+    let finalColor: string;
 
-  if (props.green) {
-    finalColor = 'green';
-  } else if (props.yellow) {
-    finalColor = 'orange';
-  } else {
-    finalColor = 'bisque';
-  }
+    if (props.green) {
+      finalColor = 'green';
+    } else if (props.yellow) {
+      finalColor = 'orange';
+    } else {
+      finalColor = 'bisque';
+    }
 
-  return finalColor;
-}};
+    return finalColor;
+  }};
   width: 70px;
   height: 70px;
   margin: 5px;
@@ -31,7 +31,11 @@ const LetterCell = styled.div<Props>`
   text-shadow: 0 0 2px #000;
 `;
 
-function LetterCells(props: { word: any; greenPositions: any; yellowPositions: any }) {
+function LetterCells(props: {
+  word: string;
+  greenPositions: number[];
+  yellowPositions: number[];
+}) {
   return (
     <div className="Cells">
       {Array.from({ length: 5 }, (_, index) => {

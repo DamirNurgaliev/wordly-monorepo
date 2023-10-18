@@ -10,3 +10,14 @@
 .Cells {
   display: flex;
 }
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.Dropdown {
+  display: flex;
+  justify-content: center;
+  background-color: beige;
+}
