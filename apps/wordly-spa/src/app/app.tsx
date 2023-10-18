@@ -21,6 +21,8 @@ function App() {
     currentWordRef.current = currentWord;
   }, [currentWord]);
 
+  useEffect(() => sessionStorage.removeItem('gameId'), []);
+
   useEffect(() => {
     if (guessedWords[guessedWords.length - 1]?.guessedPositions.length === 5) {
       sessionStorage.removeItem('gameId');
