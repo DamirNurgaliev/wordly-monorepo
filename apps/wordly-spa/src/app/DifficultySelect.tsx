@@ -24,21 +24,18 @@ const OPTIONS = {
 };
 
 const DifficultySelect = () => {
-  const [selectedValue, setSelectedValue] = useState('');
+  const [selectedValue, setSelectedValue] = useState<number>(Number(localStorage.getItem('difficulty')) || 0);
 
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedValue(e.target.value);
+    setSelectedValue(Number(e.target.value));
     localStorage.setItem('difficulty', e.target.value);
   };
-  console.log(localStorage.getItem('difficulty'))
+
   return (
     <SelectWrapper>
       <Select
         value={selectedValue}
         onChange={handleSelectChange}
-        defaultValue={
-          localStorage.getItem('difficulty') || Object.keys(OPTIONS)[0]
-        }
       >
         {Object.entries(OPTIONS).map(([key, value]) => (
           <option key={key} value={key}>
