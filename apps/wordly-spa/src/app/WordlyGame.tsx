@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import './App.css';
+import styled from 'styled-components';
 import LetterCells from './LetterCells';
 import DifficultySelect from './DifficultySelect';
 import { fetchGuessingAnswer } from './api/gameApi';
@@ -7,8 +7,20 @@ import { fetchGuessingAnswer } from './api/gameApi';
 interface GuessedWords {
   guessedPositions: number[];
   guessedLetters: number[];
+  notGuessedLetters: number[];
   word: string;
 }
+
+const GuessingBlock = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100vh;
+  justify-content: center;
+  background-color: beige;
+`;
+
+const NUMBER_OF_ATTEMPTS = 6;
 
 function WordlyGame() {
   const [guessedWords, setGuessedWords] = useState<GuessedWords[]>([]);
@@ -22,8 +34,8 @@ function WordlyGame() {
   }, [currentWord]);
 
   useEffect(() => {
-    setCurrentWord('')
-  }, [guessedWords])
+    setCurrentWord('');
+  }, [guessedWords]);
 
   useEffect(() => sessionStorage.removeItem('gameId'), []);
 
@@ -95,6 +107,15 @@ function WordlyGame() {
           prev.concat({
             guessedPositions: response.data.guessedPositions,
             guessedLetters: response.data.guessedLetters,
+            notGuessedLetters: Array.from(
+              { length: 5 },
+              (_, index) => index,
+            ).filter(
+              (i) =>
+                !response.data.guessedPositions
+                  .concat(response.data.guessedLetters)
+                  .includes(i),
+            ),
             word: currentWordRef.current,
           }),
         );
@@ -117,17 +138,18 @@ function WordlyGame() {
   return (
     <>
       <DifficultySelect />
-      <div className="Main">
-        <div className="Message">{message}</div>
-        {Array.from({ length: 6 }, (_, index) => (
+      <GuessingBlock>
+        <div>{message}</div>
+        {Array.from({ length: NUMBER_OF_ATTEMPTS }, (_, index) => (
           <LetterCells
             key={index}
             word={printWord(index) || ''}
-            greenPositions={guessedWords[index]?.guessedPositions || []}
-            yellowPositions={guessedWords[index]?.guessedLetters || []}
+            guessedLetters={guessedWords[index]?.guessedPositions || []}
+            guessedPositions={guessedWords[index]?.guessedLetters || []}
+            notGuessedPositions={guessedWords[index]?.notGuessedLetters || []}
           />
         ))}
-      </div>
+      </GuessingBlock>
     </>
   );
 }

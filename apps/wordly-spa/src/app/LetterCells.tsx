@@ -4,10 +4,18 @@ import styled from 'styled-components';
 interface CellProps {
   $green: boolean;
   $yellow: boolean;
+  $grey: boolean;
 }
 
 const LetterCell = styled.div<CellProps>`
-  background-color: ${(props) => (props.$green ? 'green' : props.$yellow ? 'orange' : 'bisque')};
+  background-color: ${(props) =>
+    props.$green
+      ? '#00d800'
+      : props.$yellow
+        ? '#f7a308bd'
+        : props.$grey
+          ? '#bdb8b8'
+          : 'bisque'};
   width: 70px;
   height: 70px;
   margin: 5px;
@@ -18,23 +26,31 @@ const LetterCell = styled.div<CellProps>`
   text-shadow: 0 0 2px #000;
 `;
 
+const StyledCells = styled.div`
+  display: flex;
+`
+const WORD_LENGTH = 5;
+
 function LetterCells(props: {
   word: string;
-  greenPositions: number[];
-  yellowPositions: number[];
+  guessedLetters: number[];
+  guessedPositions: number[];
+  notGuessedPositions: number[];
 }) {
+
   return (
-    <div className="Cells">
-      {Array.from({ length: 5 }, (_, index) => (
+    <StyledCells>
+      {Array.from({ length: WORD_LENGTH }, (_, index) => (
         <LetterCell
           key={index}
-          $green={props.greenPositions?.includes(index)}
-          $yellow={props.yellowPositions?.includes(index)}
+          $green={props.guessedLetters?.includes(index)}
+          $yellow={props.guessedPositions?.includes(index)}
+          $grey={props.notGuessedPositions?.includes(index)}
         >
           {props.word?.[index]}
         </LetterCell>
       ))}
-    </div>
+    </StyledCells>
   );
 }
 

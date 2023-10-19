@@ -38,13 +38,18 @@ export const handler = async (
   const gameDifficulty = event.queryStringParameters?.difficulty;
   const complexity = calculateComplexity(gameDifficulty || '0');
 
-  if (event.queryStringParameters?.gameId === null || event.queryStringParameters?.gameId === '') {
+  if (
+    event.queryStringParameters?.gameId === null ||
+    event.queryStringParameters?.gameId === ''
+  ) {
     const word = await dynamoDb
       .scan({
         TableName: process.env.DYNAMODB_TABLE || '',
-        ExclusiveStartKey: { entity: 'RU5', uuid: uuidv4() },
-        FilterExpression: 'complexity = :complexity',
-        ExpressionAttributeValues: { ':complexity': String(complexity) },
+        FilterExpression: 'complexity = :complexity AND entity = :entity',
+        ExpressionAttributeValues: {
+          ':complexity': String(complexity),
+          ':entity': 'RU5',
+        },
       })
       .promise();
 
