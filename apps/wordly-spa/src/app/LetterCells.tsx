@@ -1,26 +1,13 @@
 import React from 'react';
-import './App.css';
 import styled from 'styled-components';
 
 interface Props {
-  green: boolean;
-  yellow: boolean;
+  $green: boolean;
+  $yellow: boolean;
 }
 
 const LetterCell = styled.div<Props>`
-  background-color: ${(props) => {
-    let finalColor: string;
-
-    if (props.green) {
-      finalColor = 'green';
-    } else if (props.yellow) {
-      finalColor = 'orange';
-    } else {
-      finalColor = 'bisque';
-    }
-
-    return finalColor;
-  }};
+  background-color: ${(props) => (props.$green ? 'green' : props.$yellow ? 'orange' : 'bisque')};
   width: 70px;
   height: 70px;
   margin: 5px;
@@ -38,17 +25,15 @@ function LetterCells(props: {
 }) {
   return (
     <div className="Cells">
-      {Array.from({ length: 5 }, (_, index) => {
-        return (
-          <LetterCell
-            key={index}
-            green={props.greenPositions?.includes(index)}
-            yellow={props.yellowPositions?.includes(index)}
-          >
-            {props.word?.at(index)}
-          </LetterCell>
-        );
-      })}
+      {Array.from({ length: 5 }, (_, index) => (
+        <LetterCell
+          key={index}
+          $green={props.greenPositions?.includes(index)}
+          $yellow={props.yellowPositions?.includes(index)}
+        >
+          {props.word?.[index]}
+        </LetterCell>
+      ))}
     </div>
   );
 }
