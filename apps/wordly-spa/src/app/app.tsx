@@ -47,76 +47,91 @@ function App() {
     }
   }, [guessedWords]);
 
-  useEffect(() => {
-    window.addEventListener('keydown', (e: KeyboardEvent) => {
-      setMessage('');
-      if (e.key === 'Backspace') {
+  const handleKeyDown = (e: KeyboardEvent) => {
+    setMessage('');
+
+    switch (e.key) {
+      case 'Backspace':
         setCurrentWord((prev) => prev.slice(0, -1));
-      } else if (e.key.length === 1 && !Number(e.key)) {
-        setCurrentWord((prev) => (prev.length < 5 ? prev + e.key : prev));
-      } else if (e.key === 'Enter') {
+        break;
+      case 'Enter':
         if (currentWordRef.current.length < 5) {
           setMessage('В слове должно быть 5 букв.');
         } else {
-          verifyAnswer().then(function (response) {
-            if (!sessionStorage.getItem('gameId')) {
-              sessionStorage.setItem('gameId', response.data.gameId || '');
-            }
-
-            if (response.data.error) {
-              setMessage('Введенное слово не найдено.');
-            } else {
-              setGuessedWords((prev) =>
-                prev.concat({
-                  guessedPositions: response.data.guessedPositions,
-                  guessedLetters: response.data.guessedLetters,
-                  word: currentWordRef.current,
-                }),
-              );
-
-              setCurrentWord('');
-            }
-          });
+          verifyAnswer();
         }
-      }
-    });
+        break;
+      default:
+        if (e.key.length === 1 && !Number(e.key) && currentWord.length < 5) {
+          setCurrentWord((prev) => (prev.length < 5 ? prev + e.key : prev));
+        }
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
   }, []);
 
   async function verifyAnswer() {
-    const gameId = sessionStorage.getItem('gameId');
+    try {
+      const gameId = sessionStorage.getItem('gameId');
+      const response = await axios.get(process.env.NX_LAMBDA_API_URL || '', {
+        params: {
+          word: currentWordRef.current,
+          difficulty: localStorage.getItem('difficulty') || '0',
+          ...(gameId ? { gameId: gameId } : {}),
+        },
+      });
 
-    return await axios.get(process.env.NX_LAMBDA_API_URL || '', {
-      params: {
-        word: currentWordRef.current,
-        difficulty: localStorage.getItem('difficulty') || '0',
-        ...(gameId ? { gameId: gameId } : {}),
-      },
-    });
+      if (!gameId) {
+        sessionStorage.setItem('gameId', response.data.gameId || '');
+      }
+
+      if (response.data.error) {
+        setMessage('Введенное слово не найдено.');
+      } else {
+        setGuessedWords((prev) =>
+          prev.concat({
+            guessedPositions: response.data.guessedPositions,
+            guessedLetters: response.data.guessedLetters,
+            word: currentWordRef.current,
+          }),
+        );
+
+        setCurrentWord('');
+      }
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   function printWord(index: number) {
-    if (!guessedWords.at(index)) {
-      if (guessedWords.length === index) {
-        return currentWord;
-      } else {
-        return '';
-      }
+    const guessedWord = guessedWords[index];
+
+    if (guessedWord) return guessedWord.word;
+
+    if (guessedWords.length === index) {
+      return currentWord;
     } else {
-      return guessedWords.at(index)?.word;
+      return '';
     }
   }
 
   return (
     <>
-      <DifficultySelect></DifficultySelect>
+      <DifficultySelect />
       <div className="Main">
         <div className="Message">{message}</div>
         {Array.from({ length: 6 }, (_, index) => (
           <LetterCells
             key={index}
             word={printWord(index) || ''}
-            greenPositions={guessedWords.at(index)?.guessedPositions || []}
-            yellowPositions={guessedWords.at(index)?.guessedLetters || []}
+            greenPositions={guessedWords[index]?.guessedPositions || []}
+            yellowPositions={guessedWords[index]?.guessedLetters || []}
           />
         ))}
       </div>
