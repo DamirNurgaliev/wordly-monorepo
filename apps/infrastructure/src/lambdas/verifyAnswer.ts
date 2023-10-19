@@ -38,7 +38,7 @@ export const handler = async (
   const gameDifficulty = event.queryStringParameters?.difficulty;
   const complexity = calculateComplexity(gameDifficulty || '0');
 
-  if (event.queryStringParameters?.gameId == null) {
+  if (event.queryStringParameters?.gameId === null || event.queryStringParameters?.gameId === '') {
     const word = await dynamoDb
       .scan({
         TableName: process.env.DYNAMODB_TABLE || '',

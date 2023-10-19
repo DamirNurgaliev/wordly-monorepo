@@ -1,12 +1,12 @@
 import React from 'react';
 import styled from 'styled-components';
 
-interface Props {
+interface CellProps {
   $green: boolean;
   $yellow: boolean;
 }
 
-const LetterCell = styled.div<Props>`
+const LetterCell = styled.div<CellProps>`
   background-color: ${(props) => (props.$green ? 'green' : props.$yellow ? 'orange' : 'bisque')};
   width: 70px;
   height: 70px;

@@ -1,15 +1,15 @@
 import { render } from '@testing-library/react';
 
-import App from './app';
+import WordlyGame from './WordlyGame';
 
-describe('App', () => {
+describe('WordlyGame', () => {
   it('should render successfully', () => {
-    const { baseElement } = render(<App />);
+    const { baseElement } = render(<WordlyGame />);
     expect(baseElement).toBeTruthy();
   });
 
   it('should have a greeting as the title', () => {
-    const { getByText } = render(<App />);
+    const { getByText } = render(<WordlyGame />);
     expect(getByText(/Welcome wordly-spa/gi)).toBeTruthy();
   });
 });

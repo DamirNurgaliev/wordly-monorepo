@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
 import LetterCells from './LetterCells';
-import axios from 'axios';
 import DifficultySelect from './DifficultySelect';
+import { fetchGuessingAnswer } from './api/gameApi';
 
 interface GuessedWords {
   guessedPositions: number[];
@@ -10,7 +10,7 @@ interface GuessedWords {
   word: string;
 }
 
-function App() {
+function WordlyGame() {
   const [guessedWords, setGuessedWords] = useState<GuessedWords[]>([]);
   const [currentWord, setCurrentWord] = useState('');
   const [message, setMessage] = useState('');
@@ -20,6 +20,10 @@ function App() {
   useEffect(() => {
     currentWordRef.current = currentWord;
   }, [currentWord]);
+
+  useEffect(() => {
+    setCurrentWord('')
+  }, [guessedWords])
 
   useEffect(() => sessionStorage.removeItem('gameId'), []);
 
@@ -70,30 +74,23 @@ function App() {
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
-
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
   }, []);
 
-  async function verifyAnswer() {
-    try {
-      const gameId = sessionStorage.getItem('gameId');
-      const response = await axios.get(process.env.NX_LAMBDA_API_URL || '', {
-        params: {
-          word: currentWordRef.current,
-          difficulty: localStorage.getItem('difficulty') || '0',
-          ...(gameId ? { gameId: gameId } : {}),
-        },
-      });
+  function verifyAnswer() {
+    const gameId = sessionStorage.getItem('gameId') || '';
 
-      if (!gameId) {
-        sessionStorage.setItem('gameId', response.data.gameId || '');
-      }
-
+    fetchGuessingAnswer(
+      currentWordRef.current,
+      localStorage.getItem('difficulty') || '0',
+      gameId,
+    ).then((response) => {
       if (response.data.error) {
         setMessage('Введенное слово не найдено.');
       } else {
+        if (!gameId) {
+          sessionStorage.setItem('gameId', response.data.gameId);
+        }
+
         setGuessedWords((prev) =>
           prev.concat({
             guessedPositions: response.data.guessedPositions,
@@ -101,12 +98,8 @@ function App() {
             word: currentWordRef.current,
           }),
         );
-
-        setCurrentWord('');
       }
-    } catch (error) {
-      console.error(error);
-    }
+    });
   }
 
   function printWord(index: number) {
@@ -139,4 +132,4 @@ function App() {
   );
 }
 
-export default App;
+export default WordlyGame;
