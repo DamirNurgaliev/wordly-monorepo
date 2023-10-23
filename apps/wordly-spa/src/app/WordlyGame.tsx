@@ -33,10 +33,6 @@ function WordlyGame() {
     currentWordRef.current = currentWord;
   }, [currentWord]);
 
-  useEffect(() => {
-    setCurrentWord('');
-  }, [guessedWords]);
-
   useEffect(() => sessionStorage.removeItem('gameId'), []);
 
   useEffect(() => {
@@ -96,31 +92,34 @@ function WordlyGame() {
       localStorage.getItem('difficulty') || '0',
       gameId,
     ).then((response) => {
-      if (response.data.error) {
+      const responseData = response.data;
+
+      if (responseData.error) {
         setMessage('Введенное слово не найдено.');
       } else {
         if (!gameId) {
-          sessionStorage.setItem('gameId', response.data.gameId);
+          sessionStorage.setItem('gameId', responseData.gameId);
         }
+        setCurrentWord('');
 
         setGuessedWords((prev) =>
           prev.concat({
-            guessedPositions: response.data.guessedPositions,
-            guessedLetters: response.data.guessedLetters,
+            guessedPositions: responseData.guessedPositions,
+            guessedLetters: responseData.guessedLetters,
             notGuessedLetters: Array.from(
               { length: 5 },
               (_, index) => index,
             ).filter(
               (i) =>
-                !response.data.guessedPositions
-                  .concat(response.data.guessedLetters)
+                !responseData.guessedPositions
+                  .concat(responseData.guessedLetters)
                   .includes(i),
             ),
             word: currentWordRef.current,
           }),
         );
       }
-    });
+    })
   }
 
   function printWord(index: number) {
