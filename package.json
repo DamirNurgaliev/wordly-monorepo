@@ -6,6 +6,7 @@
   "private": true,
   "dependencies": {
     "@aws-cdk/aws-amplify-alpha": "2.100.0-alpha.0",
+    "@react-spring/web": "^9.7.3",
     "@swc/helpers": "~0.5.3",
     "aws-cdk": "^2.100.0",
     "aws-cdk-lib": "^2.100.0",
@@ -18,6 +19,7 @@
     "react-is": "18.2.0",
     "styled-components": "6.0.8",
     "tslib": "^2.6.2",
+    "use-immer": "^0.9.0",
     "uuid": "^9.0.1"
   },
   "devDependencies": {
