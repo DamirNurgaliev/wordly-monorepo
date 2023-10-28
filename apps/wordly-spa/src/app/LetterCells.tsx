@@ -5,6 +5,7 @@ interface StyledLetterCellProps {
   $green: boolean;
   $yellow: boolean;
   $grey: boolean;
+  $isFlipping: boolean;
 }
 
 const StyledCells = styled.div`
@@ -38,17 +39,20 @@ function LetterCells(props: {
   guessedLetters: number[];
   guessedPositions: number[];
   notGuessedPositions: number[];
+  isFlipping: boolean;
 }) {
+
   return (
     <StyledCells>
       {Array.from({ length: WORD_LENGTH }, (_, index) => (
         <StyledCell
-          key={index + 100}
-          $green={props.guessedLetters?.includes(index)}
-          $yellow={props.guessedPositions?.includes(index)}
-          $grey={props.notGuessedPositions?.includes(index)}
+          key={index}
+          $green={props.guessedLetters.includes(index)}
+          $yellow={props.guessedPositions.includes(index)}
+          $grey={props.notGuessedPositions.includes(index)}
+          $isFlipping={props.isFlipping}
         >
-          {props.word?.[index]}
+          {props.word[index]}
         </StyledCell>
       ))}
     </StyledCells>

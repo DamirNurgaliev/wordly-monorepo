@@ -22,7 +22,7 @@ const GuessingBlock = styled.div`
   background-color: beige;
 `;
 
-const initialState = Array.from({ length: NUMBER_OF_ATTEMPTS }, (_, index) => ({
+const initialState = Array.from({ length: NUMBER_OF_ATTEMPTS }, () => ({
   word: '',
   guessedPositions: [],
   guessedLetters: [],
@@ -129,9 +129,10 @@ function WordlyGame() {
           <LetterCells
             key={index}
             word={guessedWords[index].word}
-            guessedLetters={guessedWords[index].guessedPositions || []}
-            guessedPositions={guessedWords[index].guessedLetters || []}
-            notGuessedPositions={guessedWords[index].notGuessedLetters || []}
+            guessedLetters={guessedWords[index].guessedPositions}
+            guessedPositions={guessedWords[index].guessedLetters}
+            notGuessedPositions={guessedWords[index].notGuessedLetters}
+            isFlipping={currentAttempt - 1 === index && [...guessedWords[index].guessedPositions, ...guessedWords[index].guessedLetters, ...guessedWords[index].notGuessedLetters].length > 0}
           />
         ))}
       </GuessingBlock>
