@@ -1,4 +1,5 @@
-import React from 'react';
+import React, {useState} from 'react';
+import { useSpring, animated } from '@react-spring/web';
 import styled from 'styled-components';
 
 interface StyledLetterCellProps {
@@ -41,6 +42,7 @@ function LetterCells(props: {
   notGuessedPositions: number[];
   isFlipping: boolean;
 }) {
+  const [isFlipped, setIsFlipped] = useState(false);
 
   return (
     <StyledCells>
