@@ -37,22 +37,23 @@ function WordlyGame() {
   useEffect(() => sessionStorage.removeItem('gameId'), []);
 
   useEffect(() => {
-    if (guessedWords[currentAttempt].guessedPositions.length === WORD_LENGTH) {
+    if (guessedWords[currentAttempt - 1]?.guessedPositions.length === WORD_LENGTH) {
       sessionStorage.removeItem('gameId');
       setMessage('Победа');
 
       setTimeout(() => {
-        setGuessedWords([]);
+        setGuessedWords(initialState);
+        setCurrentAttempt(0)
         setMessage('');
       }, 2000);
     }
 
-    if (currentAttempt === WORD_LENGTH && guessedWords[currentAttempt].guessedPositions.length !== WORD_LENGTH) {
+    if (currentAttempt === NUMBER_OF_ATTEMPTS ) {
       sessionStorage.removeItem('gameId');
       setMessage('Не удалось разгадать слово!');
-
+      setCurrentAttempt(0)
       setTimeout(() => {
-        setGuessedWords([]);
+        setGuessedWords(initialState);
       }, 2000);
     }
   }, [currentAttempt]);
@@ -61,7 +62,7 @@ function WordlyGame() {
     (e: KeyboardEvent) => {
       const key = e.key.toLowerCase();
 
-      setGuessedWords((draft) => {
+      setGuessedWords((draft: GuessedWords[]) => {
         switch (key) {
           case 'backspace':
             draft[currentAttempt].word = draft[currentAttempt].word.slice(0, -1);
@@ -106,7 +107,7 @@ function WordlyGame() {
           sessionStorage.setItem('gameId', responseData.gameId);
         }
 
-        setGuessedWords((draft) => {
+        setGuessedWords((draft: GuessedWords[]) => {
           draft[currentAttempt].guessedPositions = responseData.guessedPositions;
           draft[currentAttempt].guessedLetters = responseData.guessedLetters;
           draft[currentAttempt].notGuessedLetters = Array.from({ length: WORD_LENGTH }, (_, index) => index).filter(
@@ -114,23 +115,9 @@ function WordlyGame() {
           );
         });
 
-        setCurrentAttempt((prev) => prev + 1);
+        setCurrentAttempt((prev: number) => prev + 1);
       }
     });
-  }
-
-  function printWord(index: number) {
-    return guessedWords[index].word;
-
-    const guessedWord = guessedWords[index];
-
-    if (guessedWord) return guessedWord.word;
-
-    if (guessedWords.length === index) {
-      return guessedWords[currentAttempt].word;
-    } else {
-      return '';
-    }
   }
 
   return (
@@ -141,7 +128,7 @@ function WordlyGame() {
         {Array.from({ length: NUMBER_OF_ATTEMPTS }, (_, index) => (
           <LetterCells
             key={index}
-            word={printWord(index) || ''}
+            word={guessedWords[index].word}
             guessedLetters={guessedWords[index].guessedPositions || []}
             guessedPositions={guessedWords[index].guessedLetters || []}
             notGuessedPositions={guessedWords[index].notGuessedLetters || []}
