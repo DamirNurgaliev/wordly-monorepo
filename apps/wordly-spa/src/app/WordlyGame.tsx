@@ -132,7 +132,7 @@ function WordlyGame() {
             guessedLetters={guessedWords[index].guessedPositions}
             guessedPositions={guessedWords[index].guessedLetters}
             notGuessedPositions={guessedWords[index].notGuessedLetters}
-            isFlipping={currentAttempt - 1 === index && [...guessedWords[index].guessedPositions, ...guessedWords[index].guessedLetters, ...guessedWords[index].notGuessedLetters].length > 0}
+            isFlipping={currentAttempt - 1 < index}
           />
         ))}
       </GuessingBlock>
