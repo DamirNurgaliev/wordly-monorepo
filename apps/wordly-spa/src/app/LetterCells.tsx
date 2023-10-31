@@ -49,7 +49,11 @@ export default function LetterCells(props: {
     rotateX: 0,
   }));
 
-  if (!props.isFlipping) {
+  if (props.isFlipping) {
+    api.start({
+      rotateX: 0,
+    });
+  } else {
     api.start({
       rotateX: 180,
     });
