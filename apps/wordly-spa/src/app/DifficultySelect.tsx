@@ -4,15 +4,15 @@ import styled from 'styled-components';
 const SelectWrapper = styled.div`
   display: flex;
   justify-content: center;
-  background-color: beige;
+  background-color: white;
 `;
 
 const Select = styled.select`
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 5px;
-  background-color: #1c260d;
-  color: white;
+  background-color: white;
+  color: black;
   outline: none;
   width: 200px;
 `;

@@ -19,7 +19,7 @@ const GuessingBlock = styled.div`
   align-items: center;
   height: 100vh;
   justify-content: center;
-  background-color: beige;
+  background-color: white;
 `;
 
 const initialState = Array.from({ length: NUMBER_OF_ATTEMPTS }, () => ({
@@ -60,14 +60,14 @@ function WordlyGame() {
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      const key = e.key.toLowerCase();
+      const key = e.key.toUpperCase();
 
       setGuessedWords((draft: GuessedWords[]) => {
         switch (key) {
-          case 'backspace':
+          case 'BACKSPACE':
             draft[currentAttempt].word = draft[currentAttempt].word.slice(0, -1);
             break;
-          case 'enter':
+          case 'ENTER':
             draft[currentAttempt].word.length < WORD_LENGTH
               ? setMessage(`В слове должно быть ${WORD_LENGTH} букв.`)
               : verifyAnswer(draft[currentAttempt].word);
@@ -97,7 +97,7 @@ function WordlyGame() {
   function verifyAnswer(word: string) {
     const gameId = sessionStorage.getItem('gameId') || '';
 
-    fetchGuessingAnswer(word, localStorage.getItem('difficulty') || '0', gameId).then((response) => {
+    fetchGuessingAnswer(word.toLowerCase(), localStorage.getItem('difficulty') || '0', gameId).then((response) => {
       const responseData = response.data;
 
       if (responseData.error) {
@@ -110,9 +110,6 @@ function WordlyGame() {
         setGuessedWords((draft: GuessedWords[]) => {
           draft[currentAttempt].guessedPositions = responseData.guessedPositions;
           draft[currentAttempt].guessedLetters = responseData.guessedLetters;
-          draft[currentAttempt].notGuessedLetters = Array.from({ length: WORD_LENGTH }, (_, index) => index).filter(
-            (i) => !responseData.guessedPositions.concat(responseData.guessedLetters).includes(i),
-          );
         });
 
         setCurrentAttempt((prev: number) => prev + 1);
@@ -129,9 +126,8 @@ function WordlyGame() {
           <LetterCells
             key={index}
             word={guessedWords[index].word}
-            guessedLetters={guessedWords[index].guessedPositions}
-            guessedPositions={guessedWords[index].guessedLetters}
-            notGuessedPositions={guessedWords[index].notGuessedLetters}
+            guessedLetters={guessedWords[index].guessedLetters}
+            guessedPositions={guessedWords[index].guessedPositions}
             isFlipping={currentAttempt - 1 < index}
           />
         ))}
