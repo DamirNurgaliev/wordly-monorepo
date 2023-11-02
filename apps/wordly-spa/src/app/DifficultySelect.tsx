@@ -5,6 +5,7 @@ const SelectWrapper = styled.div`
   display: flex;
   justify-content: center;
   background-color: white;
+  padding-top: 10px;
 `;
 
 const Select = styled.select`
