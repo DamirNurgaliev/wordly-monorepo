@@ -170,6 +170,7 @@ function WordlyGame() {
     setCurrentAttempt(0);
     setGuessedWords(initialState);
     sessionStorage.removeItem('gameId');
+    setGuessedLetters({ guessedPositions: [], guessedLetters: [], notGuessedLetters: [] });
   };
 
   return (
