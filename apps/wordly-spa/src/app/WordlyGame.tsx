@@ -31,59 +31,60 @@ const initialState = Array.from({ length: NUMBER_OF_ATTEMPTS }, () => ({
 
 function WordlyGame() {
   const [guessedWords, setGuessedWords] = useImmer<GuessedWords[]>(initialState);
+  const [isLocked, setIsLocked] = useState(false);
   const [currentAttempt, setCurrentAttempt] = useState(0);
   const [message, setMessage] = useState('');
 
   useEffect(() => sessionStorage.removeItem('gameId'), []);
 
   useEffect(() => {
+    let resetTimeout: NodeJS.Timeout;
+
     if (guessedWords[currentAttempt - 1]?.guessedPositions.length === WORD_LENGTH) {
-      sessionStorage.removeItem('gameId');
       setMessage('Победа');
-
-      setTimeout(() => {
-        setGuessedWords(initialState);
-        setCurrentAttempt(0)
-        setMessage('');
-      }, 2000);
+      resetTimeout = setTimeout(resetGame, 2000);
     }
 
-    if (currentAttempt === NUMBER_OF_ATTEMPTS ) {
+    if (
+      currentAttempt === NUMBER_OF_ATTEMPTS &&
+      guessedWords[currentAttempt - 1]?.guessedPositions.length !== WORD_LENGTH
+    ) {
       sessionStorage.removeItem('gameId');
-      setMessage('Не удалось разгадать слово!');
-      setCurrentAttempt(0)
-      setTimeout(() => {
-        setGuessedWords(initialState);
-      }, 2000);
+      setMessage('Не удалось разгадать слово');
+      resetTimeout = setTimeout(resetGame, 2000);
     }
+
+    return () => clearTimeout(resetTimeout);
   }, [currentAttempt]);
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       const key = e.key.toUpperCase();
 
-      setGuessedWords((draft: GuessedWords[]) => {
-        switch (key) {
-          case 'BACKSPACE':
-            draft[currentAttempt].word = draft[currentAttempt].word.slice(0, -1);
-            break;
-          case 'ENTER':
-            draft[currentAttempt].word.length < WORD_LENGTH
-              ? setMessage(`В слове должно быть ${WORD_LENGTH} букв.`)
-              : verifyAnswer(draft[currentAttempt].word);
-            break;
-          default:
-            if (ALLOWED_RUSSIAN_LETTERS.includes(key) && draft[currentAttempt].word.length < WORD_LENGTH) {
-              draft[currentAttempt].word = draft[currentAttempt].word + key;
-            }
+      if (!isLocked) {
+        setGuessedWords((draft: GuessedWords[]) => {
+          switch (key) {
+            case 'BACKSPACE':
+              draft[currentAttempt].word = draft[currentAttempt].word.slice(0, -1);
+              break;
+            case 'ENTER':
+              draft[currentAttempt].word.length < WORD_LENGTH
+                ? setMessage(`В слове должно быть ${WORD_LENGTH} букв.`)
+                : verifyAnswer(draft[currentAttempt].word);
+              break;
+            default:
+              if (ALLOWED_RUSSIAN_LETTERS.includes(key) && draft[currentAttempt].word.length < WORD_LENGTH) {
+                draft[currentAttempt].word = draft[currentAttempt].word + key;
+              }
 
-            if (ENG_TO_RU_KEYMAP[key] && draft[currentAttempt].word.length < WORD_LENGTH) {
-              draft[currentAttempt].word = draft[currentAttempt].word + ENG_TO_RU_KEYMAP[key];
-            }
-        }
-      });
+              if (ENG_TO_RU_KEYMAP[key] && draft[currentAttempt].word.length < WORD_LENGTH) {
+                draft[currentAttempt].word = draft[currentAttempt].word + ENG_TO_RU_KEYMAP[key];
+              }
+          }
+        });
+      }
     },
-    [currentAttempt],
+    [currentAttempt, isLocked],
   );
 
   useEffect(() => {
@@ -95,31 +96,42 @@ function WordlyGame() {
   }, [handleKeyDown]);
 
   function verifyAnswer(word: string) {
+    setIsLocked(true);
+
     const gameId = sessionStorage.getItem('gameId') || '';
 
-    fetchGuessingAnswer(word.toLowerCase(), localStorage.getItem('difficulty') || '0', gameId).then((response) => {
-      const responseData = response.data;
+    fetchGuessingAnswer(word.toLowerCase(), localStorage.getItem('difficulty') || '0', gameId)
+      .then((response) => {
+        const responseData = response.data;
 
-      if (responseData.error) {
-        setMessage('Введенное слово не найдено.');
-      } else {
-        if (!gameId) {
-          sessionStorage.setItem('gameId', responseData.gameId);
+        if (responseData.error) {
+          setMessage('Введенное слово не найдено.');
+        } else {
+          if (!gameId) {
+            sessionStorage.setItem('gameId', responseData.gameId);
+          }
+
+          setGuessedWords((draft: GuessedWords[]) => {
+            draft[currentAttempt].guessedPositions = responseData.guessedPositions;
+            draft[currentAttempt].guessedLetters = responseData.guessedLetters;
+          });
+
+          setCurrentAttempt((prev: number) => prev + 1);
         }
-
-        setGuessedWords((draft: GuessedWords[]) => {
-          draft[currentAttempt].guessedPositions = responseData.guessedPositions;
-          draft[currentAttempt].guessedLetters = responseData.guessedLetters;
-        });
-
-        setCurrentAttempt((prev: number) => prev + 1);
-      }
-    });
+      })
+      .finally(() => setIsLocked(false));
   }
+
+  const resetGame = (): void => {
+    setCurrentAttempt(0);
+    setGuessedWords(initialState);
+    setMessage('');
+    sessionStorage.removeItem('gameId');
+  };
 
   return (
     <>
-      <DifficultySelect />
+      <DifficultySelect onDifficultyChange={resetGame} />
       <GuessingBlock>
         <div>{message}</div>
         {Array.from({ length: NUMBER_OF_ATTEMPTS }, (_, index) => (

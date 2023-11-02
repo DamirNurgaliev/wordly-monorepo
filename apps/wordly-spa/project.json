@@ -17,7 +17,8 @@
         "tsConfig": "apps/wordly-spa/tsconfig.app.json",
         "assets": [
           "apps/wordly-spa/src/favicon.ico",
-          "apps/wordly-spa/src/assets"
+          "apps/wordly-spa/src/assets",
+          "apps/wordly-spa/src/mockServiceWorker.js"
         ],
         "styles": [],
         "scripts": [],

@@ -66,6 +66,8 @@ export default function LetterCells(props: {
       ? '#6cab64'
       : props.guessedLetters.includes(index)
       ? '#fbba59'
+      : props.isFlipping
+      ? 'white'
       : 'grey';
     const border = `solid 2px ${backgroundColor}`;
 

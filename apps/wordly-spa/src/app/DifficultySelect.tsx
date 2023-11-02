@@ -23,11 +23,12 @@ const OPTIONS = {
   2: 'Сложный',
 };
 
-const DifficultySelect = () => {
+const DifficultySelect = (props: { onDifficultyChange: () => void }) => {
   const [selectedValue, setSelectedValue] = useState<number>(Number(localStorage.getItem('difficulty')) || 0);
 
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedValue(Number(e.target.value));
+    props.onDifficultyChange();
     localStorage.setItem('difficulty', e.target.value);
   };
 
