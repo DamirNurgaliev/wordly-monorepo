@@ -2,6 +2,13 @@ import { styled } from 'styled-components';
 import { useTrail, animated, SpringValue } from '@react-spring/web';
 import { WORD_LENGTH } from './constants';
 
+interface LetterCellsProps {
+  word: string;
+  guessedLetters: number[];
+  guessedPositions: number[];
+  isFlipping: boolean;
+}
+
 const StyledWordContainer = styled.div`
   display: flex;
   gap: 10px;
@@ -39,17 +46,12 @@ const Backside = styled(animated.div)`
   ${SharedStyles}
 `;
 
-export default function LetterCells(props: {
-  word: string;
-  guessedLetters: number[];
-  guessedPositions: number[];
-  isFlipping: boolean;
-}) {
+const LetterCells: React.FC<LetterCellsProps> = ({ word, guessedLetters, guessedPositions, isFlipping }) => {
   const [trail, api] = useTrail(WORD_LENGTH, () => ({
     rotateX: 0,
   }));
 
-  if (props.isFlipping) {
+  if (isFlipping) {
     api.start({
       rotateX: 0,
     });
@@ -62,11 +64,11 @@ export default function LetterCells(props: {
   const renderLetter = (rotateX: SpringValue<number>, index: number) => {
     const frontFlip = rotateX.to((val) => `perspective(300px) rotateX(${val}deg)`);
     const backFlip = rotateX.to((val) => `perspective(300px) rotateX(${180 - val}deg)`);
-    const backgroundColor = props.guessedPositions.includes(index)
+    const backgroundColor = guessedPositions.includes(index)
       ? '#6cab64'
-      : props.guessedLetters.includes(index)
+      : guessedLetters.includes(index)
       ? '#fbba59'
-      : props.isFlipping
+      : isFlipping
       ? 'white'
       : 'grey';
     const border = `solid 2px ${backgroundColor}`;
@@ -78,7 +80,7 @@ export default function LetterCells(props: {
             transform: frontFlip,
           }}
         >
-          {props.word[index]}
+          {word[index]}
         </Frontside>
         <Backside
           style={{
@@ -87,11 +89,13 @@ export default function LetterCells(props: {
             border,
           }}
         >
-          {props.word[index]}
+          {word[index]}
         </Backside>
       </Letter>
     );
   };
 
   return <StyledWordContainer>{trail.map(({ rotateX }, i) => renderLetter(rotateX, i))}</StyledWordContainer>;
-}
+};
+
+export default LetterCells;

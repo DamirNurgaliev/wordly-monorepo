@@ -1,6 +1,25 @@
 import React from 'react';
 import styled from 'styled-components';
 
+interface ButtonProps {
+  $green?: boolean;
+  $orange?: boolean;
+  $grey?: boolean;
+}
+
+interface LettersColor {
+  green: string[];
+  orange: string[];
+  grey: string[];
+}
+
+interface KeyboardProps {
+  onEnterPress: () => void;
+  onBackspacePress: () => void;
+  onLetterPress: (letter: string) => void;
+  lettersColor: LettersColor;
+}
+
 const StyledKeyboard = styled.div`
   display: flex;
   justify-content: center;
@@ -8,12 +27,6 @@ const StyledKeyboard = styled.div`
   width: 400px;
   flex-direction: column;
 `;
-
-interface ButtonProps {
-  $green?: boolean;
-  $orange?: boolean;
-  $grey?: boolean;
-}
 
 const StyledButton = styled.button<ButtonProps>`
   flex: 1;
@@ -33,24 +46,19 @@ const StyledRow = styled.div`
   padding: 3px;
 `;
 
+const keyboardButtons = [
+  ['Й', 'Ц', 'У', 'К', 'Е', 'Н', 'Г', 'Ш', 'Щ', 'Х', 'Ъ'],
+  ['Ф', 'Ы', 'В', 'А', 'П', 'Р', 'О', 'Л', 'Д', 'Ж', 'Э'],
+  ['←', 'Я', 'Ч', 'С', 'М', 'И', 'Т', 'Ь', 'Б', 'Ю', 'ВВОД'],
+];
+
 interface LettersColor {
   green: string[];
   orange: string[];
   grey: string[];
 }
 
-export default function Keyboard(props: {
-  onEnterPress: () => void;
-  onBackspacePress: () => void;
-  onLetterPress: (letter: string) => void;
-  lettersColor: LettersColor;
-}) {
-  const keyboardButtons = [
-    ['Й', 'Ц', 'У', 'К', 'Е', 'Н', 'Г', 'Ш', 'Щ', 'Х', 'Ъ'],
-    ['Ф', 'Ы', 'В', 'А', 'П', 'Р', 'О', 'Л', 'Д', 'Ж', 'Э'],
-    ['←', 'Я', 'Ч', 'С', 'М', 'И', 'Т', 'Ь', 'Б', 'Ю', 'ВВОД'],
-  ];
-
+const Keyboard: React.FC<KeyboardProps> = ({ onEnterPress, onBackspacePress, onLetterPress, lettersColor }) => {
   return (
     <StyledKeyboard>
       {keyboardButtons.map((row, index) => (
@@ -58,15 +66,15 @@ export default function Keyboard(props: {
           {row.map((char, index) => (
             <StyledButton
               key={index}
-              $green={props.lettersColor.green.includes(char)}
-              $orange={props.lettersColor.orange.includes(char)}
-              $grey={props.lettersColor.grey.includes(char)}
+              $green={lettersColor.green.includes(char)}
+              $orange={lettersColor.orange.includes(char)}
+              $grey={lettersColor.grey.includes(char)}
               onClick={
                 char === '←'
-                  ? props.onBackspacePress
+                  ? onBackspacePress
                   : char === 'ВВОД'
-                  ? props.onEnterPress
-                  : () => props.onLetterPress(char)
+                  ? onEnterPress
+                  : () => onLetterPress(char)
               }
             >
               {char}
@@ -76,4 +84,6 @@ export default function Keyboard(props: {
       ))}
     </StyledKeyboard>
   );
-}
+};
+
+export default Keyboard;

@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
+interface DifficultySelectProps {
+  onDifficultyChange: () => void;
+}
+
 const SelectWrapper = styled.div`
   display: flex;
   justify-content: center;
@@ -24,21 +28,18 @@ const OPTIONS = {
   2: 'Сложный',
 };
 
-const DifficultySelect = (props: { onDifficultyChange: () => void }) => {
+const DifficultySelect: React.FC<DifficultySelectProps> = ({ onDifficultyChange }) => {
   const [selectedValue, setSelectedValue] = useState<number>(Number(localStorage.getItem('difficulty')) || 0);
 
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedValue(Number(e.target.value));
-    props.onDifficultyChange();
+    onDifficultyChange();
     localStorage.setItem('difficulty', e.target.value);
   };
 
   return (
     <SelectWrapper>
-      <Select
-        value={selectedValue}
-        onChange={handleSelectChange}
-      >
+      <Select value={selectedValue} onChange={handleSelectChange}>
         {Object.entries(OPTIONS).map(([key, value]) => (
           <option key={key} value={key}>
             {value}

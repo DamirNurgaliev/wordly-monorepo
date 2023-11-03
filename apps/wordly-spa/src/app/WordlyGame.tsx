@@ -42,7 +42,7 @@ const initialState = Array.from({ length: NUMBER_OF_ATTEMPTS }, () => ({
   guessedLetters: [],
 }));
 
-function WordlyGame() {
+const WordlyGame = () => {
   const [gameField, setGameField] = useImmer<GameField[]>(initialState);
   const [lettersColor, setLettersColor] = useImmer<LettersColor>({
     green: [],
