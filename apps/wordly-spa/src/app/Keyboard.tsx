@@ -5,112 +5,75 @@ const StyledKeyboard = styled.div`
   display: flex;
   justify-content: center;
   padding-bottom: 20px;
+  width: 400px;
+  flex-direction: column;
 `;
 
 interface ButtonProps {
-  isGreen?: boolean;
-  isYellow?: boolean;
-  isGrey?: boolean;
+  $green?: boolean;
+  $orange?: boolean;
+  $grey?: boolean;
 }
 
 const StyledButton = styled.button<ButtonProps>`
   flex: 1;
   font-size: 20px;
   background-color: ${(props) =>
-    props.isGreen ? '#6cab64' : props.isYellow ? '#fbba59' : props.isGrey ? 'grey' : '#e7e7e7'};
+    props.$green ? '#6cab64' : props.$orange ? '#fbba59' : props.$grey ? 'grey' : '#e7e7e7'};
   border: 1px solid #d1d1d1;
   border-radius: 5px;
   cursor: pointer;
 `;
 
-const StyledFirstRow = styled.div`
+const StyledRow = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 3px;
   height: 50px;
+  padding: 3px;
 `;
 
-const StyledSecondRow = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 3px;
-  height: 50px;
-  padding-top: 3px;
-`;
-
-const StyledThirdRow = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 3px;
-  height: 50px;
-  padding-top: 3px;
-`;
-
-const StyledContainer = styled.div`
-  width: 500px;
-`;
-
-interface GuessedLetters {
-  guessedPositions: string[];
-  guessedLetters: string[];
-  notGuessedLetters: string[];
+interface LettersColor {
+  green: string[];
+  orange: string[];
+  grey: string[];
 }
 
-export default function RussianKeyboard(props: {
+export default function Keyboard(props: {
   onEnterPress: () => void;
   onBackspacePress: () => void;
   onLetterPress: (letter: string) => void;
-  guessedLetters: GuessedLetters;
+  lettersColor: LettersColor;
 }) {
-  const firstRow = 'йцукенгшщзхъ';
-  const secondRow = 'фывапролджэ';
-  const thirdRow = 'ячсмитьбю';
-  console.log(props.guessedLetters)
+  const keyboardButtons = [
+    ['Й', 'Ц', 'У', 'К', 'Е', 'Н', 'Г', 'Ш', 'Щ', 'Х', 'Ъ'],
+    ['Ф', 'Ы', 'В', 'А', 'П', 'Р', 'О', 'Л', 'Д', 'Ж', 'Э'],
+    ['←', 'Я', 'Ч', 'С', 'М', 'И', 'Т', 'Ь', 'Б', 'Ю', 'ВВОД'],
+  ];
+
   return (
     <StyledKeyboard>
-      <StyledContainer>
-        <StyledFirstRow>
-          {firstRow.split('').map((char, index) => (
+      {keyboardButtons.map((row, index) => (
+        <StyledRow key={index}>
+          {row.map((char, index) => (
             <StyledButton
               key={index}
-              isGreen={props.guessedLetters.guessedPositions.includes(char.toUpperCase())}
-              isYellow={props.guessedLetters.guessedLetters.includes(char.toUpperCase())}
-              isGrey={props.guessedLetters.notGuessedLetters.includes(char.toUpperCase())}
-              onClick={() => props.onLetterPress(char.toUpperCase())}
+              $green={props.lettersColor.green.includes(char)}
+              $orange={props.lettersColor.orange.includes(char)}
+              $grey={props.lettersColor.grey.includes(char)}
+              onClick={
+                char === '←'
+                  ? props.onBackspacePress
+                  : char === 'ВВОД'
+                  ? props.onEnterPress
+                  : () => props.onLetterPress(char)
+              }
             >
               {char}
             </StyledButton>
           ))}
-        </StyledFirstRow>
-        <StyledSecondRow>
-          {secondRow.split('').map((char, index) => (
-            <StyledButton
-              key={index}
-              isGreen={props.guessedLetters.guessedPositions.includes(char.toUpperCase())}
-              isYellow={props.guessedLetters.guessedLetters.includes(char.toUpperCase())}
-              isGrey={props.guessedLetters.notGuessedLetters.includes(char.toUpperCase())}
-              onClick={() => props.onLetterPress(char.toUpperCase())}
-            >
-              {char}
-            </StyledButton>
-          ))}
-        </StyledSecondRow>
-        <StyledThirdRow>
-          <StyledButton onClick={() => props.onBackspacePress()}>{String.fromCharCode(8656)}</StyledButton>
-          {thirdRow.split('').map((char, index) => (
-            <StyledButton
-              key={index}
-              isGreen={props.guessedLetters.guessedPositions.includes(char.toUpperCase())}
-              isYellow={props.guessedLetters.guessedLetters.includes(char.toUpperCase())}
-              isGrey={props.guessedLetters.notGuessedLetters.includes(char.toUpperCase())}
-              onClick={() => props.onLetterPress(char.toUpperCase())}
-            >
-              {char}
-            </StyledButton>
-          ))}
-          <StyledButton onClick={() => props.onEnterPress()}>{'Ввод'}</StyledButton>
-        </StyledThirdRow>
-      </StyledContainer>
+        </StyledRow>
+      ))}
     </StyledKeyboard>
   );
 }

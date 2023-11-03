@@ -7,16 +7,16 @@ import { fetchGuessingAnswer } from './api/gameApi';
 import { useImmer } from 'use-immer';
 import { WORD_LENGTH, NUMBER_OF_ATTEMPTS, ALLOWED_RUSSIAN_LETTERS, ENG_TO_RU_KEYMAP } from './constants';
 
-interface GuessedWords {
+interface GameField {
   guessedPositions: number[];
   guessedLetters: number[];
   word: string;
 }
 
-interface GuessedLetters {
-  guessedPositions: string[];
-  guessedLetters: string[];
-  notGuessedLetters: string[];
+interface LettersColor {
+  green: string[];
+  orange: string[];
+  grey: string[];
 }
 
 const GuessingBlock = styled.div`
@@ -33,6 +33,7 @@ const StyledContainer = styled.div`
   flex-direction: column;
   justify-content: space-between;
   min-height: 100vh;
+  align-items: center;
 `;
 
 const initialState = Array.from({ length: NUMBER_OF_ATTEMPTS }, () => ({
@@ -42,11 +43,11 @@ const initialState = Array.from({ length: NUMBER_OF_ATTEMPTS }, () => ({
 }));
 
 function WordlyGame() {
-  const [guessedWords, setGuessedWords] = useImmer<GuessedWords[]>(initialState);
-  const [guessedLetters, setGuessedLetters] = useImmer<GuessedLetters>({
-    guessedPositions: [],
-    guessedLetters: [],
-    notGuessedLetters: [],
+  const [gameField, setGameField] = useImmer<GameField[]>(initialState);
+  const [lettersColor, setLettersColor] = useImmer<LettersColor>({
+    green: [],
+    orange: [],
+    grey: [],
   });
   const [isLocked, setIsLocked] = useState(false);
   const [currentAttempt, setCurrentAttempt] = useState(0);
@@ -54,15 +55,15 @@ function WordlyGame() {
   useEffect(() => sessionStorage.removeItem('gameId'), []);
 
   useEffect(() => {
-    setGuessedLetters((draft) => {
-      guessedWords[currentAttempt - 1]?.word.split('').forEach((char, index) => {
-        if (guessedWords[currentAttempt - 1].guessedPositions.includes(index)) {
-          draft.guessedPositions.push(char);
+    setLettersColor((draft) => {
+      gameField[currentAttempt - 1]?.word.split('').forEach((char, index) => {
+        if (gameField[currentAttempt - 1].guessedPositions.includes(index)) {
+          draft.green.push(char);
         } else {
-          if (guessedWords[currentAttempt - 1].guessedLetters.includes(index)) {
-            draft.guessedLetters.push(char);
+          if (gameField[currentAttempt - 1].guessedLetters.includes(index)) {
+            draft.orange.push(char);
           } else {
-            draft.notGuessedLetters.push(char);
+            draft.grey.push(char);
           }
         }
       });
@@ -72,13 +73,13 @@ function WordlyGame() {
   useEffect(() => {
     let resetTimeout: NodeJS.Timeout;
 
-    if (guessedWords[currentAttempt - 1]?.guessedPositions.length === WORD_LENGTH) {
+    if (gameField[currentAttempt - 1]?.guessedPositions.length === WORD_LENGTH) {
       resetTimeout = setTimeout(resetGame, 2000);
     }
 
     if (
       currentAttempt === NUMBER_OF_ATTEMPTS &&
-      guessedWords[currentAttempt - 1]?.guessedPositions.length !== WORD_LENGTH
+      gameField[currentAttempt - 1]?.guessedPositions.length !== WORD_LENGTH
     ) {
       sessionStorage.removeItem('gameId');
       resetTimeout = setTimeout(resetGame, 2000);
@@ -88,19 +89,19 @@ function WordlyGame() {
   }, [currentAttempt]);
 
   const handleBackspacePress = () => {
-    setGuessedWords((draft) => {
+    setGameField((draft) => {
       draft[currentAttempt].word = draft[currentAttempt].word.slice(0, -1);
     });
   };
 
   const handleEnterPress = () => {
-    if (guessedWords[currentAttempt].word.length === WORD_LENGTH) {
-      verifyAnswer(guessedWords[currentAttempt].word);
+    if (gameField[currentAttempt].word.length === WORD_LENGTH) {
+      verifyAnswer(gameField[currentAttempt].word);
     }
   };
 
   const handleAnyLetterPress = (key: string) => {
-    setGuessedWords((draft) => {
+    setGameField((draft) => {
       if (ALLOWED_RUSSIAN_LETTERS.includes(key) && draft[currentAttempt].word.length < WORD_LENGTH) {
         draft[currentAttempt].word = draft[currentAttempt].word + key;
       }
@@ -113,6 +114,8 @@ function WordlyGame() {
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
+      if (NUMBER_OF_ATTEMPTS === currentAttempt) return;
+
       const key = e.key.toUpperCase();
 
       if (!isLocked) {
@@ -128,7 +131,7 @@ function WordlyGame() {
         }
       }
     },
-    [currentAttempt, isLocked, guessedWords],
+    [currentAttempt, isLocked, gameField],
   );
 
   useEffect(() => {
@@ -155,7 +158,7 @@ function WordlyGame() {
             sessionStorage.setItem('gameId', responseData.gameId);
           }
 
-          setGuessedWords((draft: GuessedWords[]) => {
+          setGameField((draft) => {
             draft[currentAttempt].guessedPositions = responseData.guessedPositions;
             draft[currentAttempt].guessedLetters = responseData.guessedLetters;
           });
@@ -168,9 +171,9 @@ function WordlyGame() {
 
   const resetGame = (): void => {
     setCurrentAttempt(0);
-    setGuessedWords(initialState);
+    setGameField(initialState);
     sessionStorage.removeItem('gameId');
-    setGuessedLetters({ guessedPositions: [], guessedLetters: [], notGuessedLetters: [] });
+    setLettersColor({ green: [], orange: [], grey: [] });
   };
 
   return (
@@ -180,9 +183,9 @@ function WordlyGame() {
         {Array.from({ length: NUMBER_OF_ATTEMPTS }, (_, index) => (
           <LetterCells
             key={index}
-            word={guessedWords[index].word}
-            guessedLetters={guessedWords[index].guessedLetters}
-            guessedPositions={guessedWords[index].guessedPositions}
+            word={gameField[index].word}
+            guessedLetters={gameField[index].guessedLetters}
+            guessedPositions={gameField[index].guessedPositions}
             isFlipping={currentAttempt - 1 < index}
           />
         ))}
@@ -191,7 +194,7 @@ function WordlyGame() {
         onEnterPress={handleEnterPress}
         onBackspacePress={handleBackspacePress}
         onLetterPress={(letter: string) => handleAnyLetterPress(letter)}
-        guessedLetters={guessedLetters}
+        lettersColor={lettersColor}
       />
     </StyledContainer>
   );
