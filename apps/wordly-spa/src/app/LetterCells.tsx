@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { styled } from 'styled-components';
 import { useTrail, animated, SpringValue } from '@react-spring/web';
 import { WORD_LENGTH } from './constants';
@@ -46,7 +47,7 @@ const Backside = styled(animated.div)`
   ${SharedStyles}
 `;
 
-const LetterCells: React.FC<LetterCellsProps> = ({ word, guessedLetters, guessedPositions, isFlipping }) => {
+const LetterCells: React.FC<LetterCellsProps> = memo(({ word, guessedLetters, guessedPositions, isFlipping }) => {
   const [trail, api] = useTrail(WORD_LENGTH, () => ({
     rotateX: 0,
   }));
@@ -96,6 +97,6 @@ const LetterCells: React.FC<LetterCellsProps> = ({ word, guessedLetters, guessed
   };
 
   return <StyledWordContainer>{trail.map(({ rotateX }, i) => renderLetter(rotateX, i))}</StyledWordContainer>;
-};
+});
 
 export default LetterCells;
