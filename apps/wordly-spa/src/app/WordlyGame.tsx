@@ -5,19 +5,10 @@ import DifficultySelect from './DifficultySelect';
 import Keyboard from './Keyboard';
 import { fetchGuessingAnswer } from './api/gameApi';
 import { useImmer } from 'use-immer';
+import useLettersColor from './hooks/useLettersColor';
+import usePopup from './hooks/usePopup';
+import { GameField } from './commonTypes';
 import { WORD_LENGTH, NUMBER_OF_ATTEMPTS, ALLOWED_RUSSIAN_LETTERS, ENG_TO_RU_KEYMAP } from './constants';
-
-interface GameField {
-  guessedPositions: number[];
-  guessedLetters: number[];
-  word: string;
-}
-
-interface LettersColor {
-  green: string[];
-  orange: string[];
-  grey: string[];
-}
 
 const GuessingBlock = styled.div`
   display: flex;
@@ -44,31 +35,13 @@ const initialState = Array.from({ length: NUMBER_OF_ATTEMPTS }, () => ({
 
 const WordlyGame = () => {
   const [gameField, setGameField] = useImmer<GameField[]>(initialState);
-  const [lettersColor, setLettersColor] = useImmer<LettersColor>({
-    green: [],
-    orange: [],
-    grey: [],
-  });
   const [isLocked, setIsLocked] = useState(false);
   const [currentAttempt, setCurrentAttempt] = useState(0);
 
-  useEffect(() => sessionStorage.removeItem('gameId'), []);
+  const lettersColor = useLettersColor(gameField, currentAttempt);
+  const { showPopup, Popup } = usePopup();
 
-  useEffect(() => {
-    setLettersColor((draft) => {
-      gameField[currentAttempt - 1]?.word.split('').forEach((char, index) => {
-        if (gameField[currentAttempt - 1].guessedPositions.includes(index)) {
-          draft.green.push(char);
-        } else {
-          if (gameField[currentAttempt - 1].guessedLetters.includes(index)) {
-            draft.orange.push(char);
-          } else {
-            draft.grey.push(char);
-          }
-        }
-      });
-    });
-  }, [currentAttempt]);
+  useEffect(() => sessionStorage.removeItem('gameId'), []);
 
   useEffect(() => {
     let resetTimeout: NodeJS.Timeout;
@@ -97,6 +70,8 @@ const WordlyGame = () => {
   const handleEnterPress = () => {
     if (gameField[currentAttempt].word.length === WORD_LENGTH) {
       verifyAnswer(gameField[currentAttempt].word);
+    } else {
+      showPopup(`В слове должно быть ${WORD_LENGTH} букв!😎`);
     }
   };
 
@@ -152,7 +127,7 @@ const WordlyGame = () => {
         const responseData = response.data;
 
         if (responseData.error) {
-          // fill later
+          showPopup('Введенное слово не найдено😔');
         } else {
           if (!gameId) {
             sessionStorage.setItem('gameId', responseData.gameId);
@@ -173,11 +148,11 @@ const WordlyGame = () => {
     setCurrentAttempt(0);
     setGameField(initialState);
     sessionStorage.removeItem('gameId');
-    setLettersColor({ green: [], orange: [], grey: [] });
   };
 
   return (
     <StyledContainer>
+      {Popup}
       <DifficultySelect onDifficultyChange={resetGame} />
       <GuessingBlock>
         {Array.from({ length: NUMBER_OF_ATTEMPTS }, (_, index) => (
@@ -198,6 +173,6 @@ const WordlyGame = () => {
       />
     </StyledContainer>
   );
-}
+};
 
 export default WordlyGame;

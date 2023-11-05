@@ -1,16 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
+import { LettersColor } from './commonTypes';
 
 interface ButtonProps {
   $green?: boolean;
   $orange?: boolean;
   $grey?: boolean;
-}
-
-interface LettersColor {
-  green: string[];
-  orange: string[];
-  grey: string[];
 }
 
 interface KeyboardProps {
@@ -51,12 +46,6 @@ const keyboardButtons = [
   ['Ф', 'Ы', 'В', 'А', 'П', 'Р', 'О', 'Л', 'Д', 'Ж', 'Э'],
   ['←', 'Я', 'Ч', 'С', 'М', 'И', 'Т', 'Ь', 'Б', 'Ю', 'ВВОД'],
 ];
-
-interface LettersColor {
-  green: string[];
-  orange: string[];
-  grey: string[];
-}
 
 const Keyboard: React.FC<KeyboardProps> = ({ onEnterPress, onBackspacePress, onLetterPress, lettersColor }) => {
   return (
