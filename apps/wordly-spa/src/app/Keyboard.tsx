@@ -19,7 +19,7 @@ const StyledKeyboard = styled.div`
   display: flex;
   justify-content: center;
   padding-bottom: 20px;
-  width: 400px;
+  width: 450px;
   flex-direction: column;
 `;
 
@@ -27,10 +27,11 @@ const StyledButton = styled.button<ButtonProps>`
   flex: 1;
   font-size: 20px;
   background-color: ${(props) =>
-    props.$green ? '#6cab64' : props.$orange ? '#fbba59' : props.$grey ? 'grey' : '#e7e7e7'};
+    props.$green ? '#6cab64' : props.$orange ? '#fbba59' : props.$grey ? 'grey' : '#d3d6da'};
   border: 1px solid #d1d1d1;
   border-radius: 5px;
   cursor: pointer;
+  font-weight: bold;
 `;
 
 const StyledRow = styled.div`

@@ -18,6 +18,7 @@ const StyledPopup = styled.div<StyledPopupProps>`
   font-size: x-large;
   opacity: ${(props) => (props.$visible ? 1 : 0)};
   transition: opacity 0.5s;
+  pointer-events: none;
 `;
 
 const Popup: React.FC<{ message: string }> = ({ message }) => {

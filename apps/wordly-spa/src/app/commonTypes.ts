@@ -2,6 +2,7 @@ export interface GameField {
   guessedPositions: number[];
   guessedLetters: number[];
   word: string;
+  isShaking: boolean;
 }
 
 export interface LettersColor {

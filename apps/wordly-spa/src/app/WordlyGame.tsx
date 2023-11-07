@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import styled from 'styled-components';
 import LetterCells from './LetterCells';
 import DifficultySelect from './DifficultySelect';
@@ -31,6 +31,7 @@ const initialState = Array.from({ length: NUMBER_OF_ATTEMPTS }, () => ({
   word: '',
   guessedPositions: [],
   guessedLetters: [],
+  isShaking: false,
 }));
 
 const WordlyGame = () => {
@@ -72,6 +73,9 @@ const WordlyGame = () => {
       verifyAnswer(gameField[currentAttempt].word);
     } else {
       showPopup(`В слове должно быть ${WORD_LENGTH} букв!😎`);
+      setGameField((draft) => {
+        draft[currentAttempt].isShaking = !draft[currentAttempt].isShaking;
+      });
     }
   };
 
@@ -128,6 +132,9 @@ const WordlyGame = () => {
 
         if (responseData.error) {
           showPopup('Введенное слово не найдено😔');
+          setGameField((draft) => {
+            draft[currentAttempt].isShaking = !draft[currentAttempt].isShaking;
+          });
         } else {
           if (!gameId) {
             sessionStorage.setItem('gameId', responseData.gameId);
@@ -162,6 +169,7 @@ const WordlyGame = () => {
             guessedLetters={gameField[index].guessedLetters}
             guessedPositions={gameField[index].guessedPositions}
             isFlipping={currentAttempt - 1 < index}
+            isShaking={gameField[index].isShaking}
           />
         ))}
       </GuessingBlock>
