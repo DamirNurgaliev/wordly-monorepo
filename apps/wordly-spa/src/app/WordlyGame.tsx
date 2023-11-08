@@ -68,13 +68,19 @@ const WordlyGame = () => {
     });
   };
 
+  const resetShaking = () => {
+    setGameField((draft) => {
+      draft[currentAttempt].isShaking = false;
+    });
+  }
+
   const handleEnterPress = () => {
     if (gameField[currentAttempt].word.length === WORD_LENGTH) {
       verifyAnswer(gameField[currentAttempt].word);
     } else {
       showPopup(`В слове должно быть ${WORD_LENGTH} букв!😎`);
       setGameField((draft) => {
-        draft[currentAttempt].isShaking = !draft[currentAttempt].isShaking;
+        draft[currentAttempt].isShaking = true;
       });
     }
   };
@@ -133,7 +139,7 @@ const WordlyGame = () => {
         if (responseData.error) {
           showPopup('Введенное слово не найдено😔');
           setGameField((draft) => {
-            draft[currentAttempt].isShaking = !draft[currentAttempt].isShaking;
+            draft[currentAttempt].isShaking = true;
           });
         } else {
           if (!gameId) {
@@ -170,6 +176,7 @@ const WordlyGame = () => {
             guessedPositions={gameField[index].guessedPositions}
             isFlipping={currentAttempt - 1 < index}
             isShaking={gameField[index].isShaking}
+            resetShaking={resetShaking}
           />
         ))}
       </GuessingBlock>

@@ -1,8 +1,7 @@
-import {memo, useEffect, useState} from 'react';
+import { memo } from 'react';
 import { styled } from 'styled-components';
 import { useTrail, animated, SpringValue, useSpring } from '@react-spring/web';
 import { WORD_LENGTH } from './constants';
-import FrontLetter from "./FrontLetter";
 
 interface LetterCellsProps {
   word: string;
@@ -10,6 +9,7 @@ interface LetterCellsProps {
   guessedPositions: number[];
   isFlipping: boolean;
   isShaking: boolean;
+  resetShaking: () => void;
 }
 
 const StyledWordContainer = styled(animated.div)`
@@ -50,7 +50,7 @@ const Backside = styled(animated.div)`
 `;
 
 const LetterCells: React.FC<LetterCellsProps> = memo(
-  ({ word, guessedLetters, guessedPositions, isFlipping, isShaking }) => {
+  ({ word, guessedLetters, guessedPositions, isFlipping, isShaking, resetShaking }) => {
     const [trail, api] = useTrail(WORD_LENGTH, () => ({
       rotateX: 0,
     }));
@@ -65,10 +65,14 @@ const LetterCells: React.FC<LetterCellsProps> = memo(
       });
     }
 
-
     const { x } = useSpring({
       from: { x: 0 },
       to: { x: isShaking ? 1 : 0 },
+      onRest: () => {
+        if (isShaking) {
+          resetShaking()
+        }
+      }
     });
 
     const renderLetter = (rotateX: SpringValue<number>, index: number) => {
@@ -83,41 +87,47 @@ const LetterCells: React.FC<LetterCellsProps> = memo(
         : 'grey';
       const border = `solid 2px ${backgroundColor}`;
 
-    return (
-      <Letter key={index}>
-        <Frontside
-          style={{
-            transform: frontFlip,
-          }}
-        >
-          {word[index]}
-        </Frontside>
-        <Backside
-          style={{
-            transform: backFlip,
-            backgroundColor,
-            border,
-          }}
-        >
-          {word[index]}
-        </Backside>
-      </Letter>
-    );
-  };
+      return (
+        <Letter key={index}>
+          <Frontside
+            style={{
+              transform: frontFlip,
+            }}
+          >
+            {word[index]}
+          </Frontside>
+          <Backside
+            style={{
+              transform: backFlip,
+              backgroundColor,
+              border,
+            }}
+          >
+            {word[index]}
+          </Backside>
+        </Letter>
+      );
+    };
 
     return (
-      <StyledWordContainer
-        style={{
-          transform: x
-            .to({
-              range: [0, 0.25, 0.5, 0.75, 1],
-              output: [0, -5, 5, -5, 0],
-            })
-            .to((x) => `translate3d(${x}px, 0px, 0px)`),
-        }}
-      >
-        {trail.map(({ rotateX }, i) => renderLetter(rotateX, i))}
-      </StyledWordContainer>
+      isShaking ? (
+        <StyledWordContainer
+          style={{
+            transform: x
+              .to({
+                range: [0, 0.25, 0.5, 0.75, 1],
+                output: [0, -5, 5, -5, 0],
+              })
+              .to((x) => `translate3d(${x}px, 0px, 0px)`),
+          }}
+        >
+          {trail.map(({ rotateX }, i) => renderLetter(rotateX, i))}
+        </StyledWordContainer>
+      ) : (
+        <StyledWordContainer>
+          {trail.map(({ rotateX }, i) => renderLetter(rotateX, i))}
+        </StyledWordContainer>
+      )
     );
   },
 );
