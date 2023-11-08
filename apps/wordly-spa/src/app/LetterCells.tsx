@@ -70,9 +70,9 @@ const LetterCells: React.FC<LetterCellsProps> = memo(
       to: { x: isShaking ? 1 : 0 },
       onRest: () => {
         if (isShaking) {
-          resetShaking()
+          resetShaking();
         }
-      }
+      },
     });
 
     const renderLetter = (rotateX: SpringValue<number>, index: number) => {
@@ -109,25 +109,21 @@ const LetterCells: React.FC<LetterCellsProps> = memo(
       );
     };
 
-    return (
-      isShaking ? (
-        <StyledWordContainer
-          style={{
-            transform: x
-              .to({
-                range: [0, 0.25, 0.5, 0.75, 1],
-                output: [0, -5, 5, -5, 0],
-              })
-              .to((x) => `translate3d(${x}px, 0px, 0px)`),
-          }}
-        >
-          {trail.map(({ rotateX }, i) => renderLetter(rotateX, i))}
-        </StyledWordContainer>
-      ) : (
-        <StyledWordContainer>
-          {trail.map(({ rotateX }, i) => renderLetter(rotateX, i))}
-        </StyledWordContainer>
-      )
+    return isShaking ? (
+      <StyledWordContainer
+        style={{
+          transform: x
+            .to({
+              range: [0, 0.25, 0.5, 0.75, 1],
+              output: [0, -5, 5, -5, 0],
+            })
+            .to((x) => `translate3d(${x}px, 0px, 0px)`),
+        }}
+      >
+        {trail.map(({ rotateX }, i) => renderLetter(rotateX, i))}
+      </StyledWordContainer>
+    ) : (
+      <StyledWordContainer>{trail.map(({ rotateX }, i) => renderLetter(rotateX, i))}</StyledWordContainer>
     );
   },
 );

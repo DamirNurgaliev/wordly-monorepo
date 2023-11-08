@@ -59,13 +59,7 @@ const Keyboard: React.FC<KeyboardProps> = ({ onEnterPress, onBackspacePress, onL
               $green={lettersColor.green.includes(char)}
               $orange={lettersColor.orange.includes(char)}
               $grey={lettersColor.grey.includes(char)}
-              onClick={
-                char === '←'
-                  ? onBackspacePress
-                  : char === 'ВВОД'
-                  ? onEnterPress
-                  : () => onLetterPress(char)
-              }
+              onClick={char === '←' ? onBackspacePress : char === 'ВВОД' ? onEnterPress : () => onLetterPress(char)}
             >
               {char}
             </StyledButton>

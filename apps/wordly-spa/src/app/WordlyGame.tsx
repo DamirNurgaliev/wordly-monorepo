@@ -72,7 +72,7 @@ const WordlyGame = () => {
     setGameField((draft) => {
       draft[currentAttempt].isShaking = false;
     });
-  }
+  };
 
   const handleEnterPress = () => {
     if (gameField[currentAttempt].word.length === WORD_LENGTH) {
